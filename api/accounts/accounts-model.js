@@ -9,21 +9,21 @@ const getById = id => {
 }
 
 const create = account => {
-  return db("accounts").insert(account).then(id => getById(id)
+  return db("accounts").insert(account).then(id => getById(id[0])
   )
 }
 
 const updateById = (id, account) => {
-  return db("accounts").where({id}).update(account)
+  return db("accounts").where({ id }).update(account).then(id => getById(id))
 }
 
 const deleteById = id => {
-  return db("accounts").where({id}).del();
+  return db("accounts").where({ id }).del();
 }
 
 const getByName = name => {
   return db('accounts')
-    .where( {name} )
+    .where({ name })
     .first();
 }
 

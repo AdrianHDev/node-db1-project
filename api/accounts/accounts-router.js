@@ -1,8 +1,11 @@
 const router = require('express').Router()
-const { checkAccountId, checkAccountPayload } = require('./accounts-middleware');
+const { checkAccountId, checkAccountPayload, checkAccountNameUnique } = require('./accounts-middleware');
 const Accounts = require("./accounts-model")
 
 router.get('/', (req, res, next) => {
+  Accounts.getByName("account-03").then((accs => {
+    console.log(accs)
+  }))
   console.log("Getting all...");
     Accounts.getAll().then(accs => {
       res.json(accs)
@@ -21,21 +24,22 @@ router.get('/:id',checkAccountId, (req, res, next) => {
 })
 
 
-router.post('/', checkAccountPayload, (req, res, next) => {
+router.post('/', checkAccountPayload, checkAccountNameUnique, (req, res, next) => {
   console.log("Posting", req.body)
   req.body.name = req.body.name.trim();
   Accounts.create(req.body).then(acc => {
     res.status(201).json(acc)
   }).catch(err => {
-    res.status(500).json({message: "Internal Server Error."})
+    res.status(500).json({message: "Internal Server Error.", ...err})
   })
 })
 
-router.put('/:id',checkAccountId, checkAccountPayload, (req, res, next) => {
+router.put('/:id',checkAccountId, checkAccountPayload, checkAccountNameUnique, (req, res, next) => {
   console.log('Putting', req.body,"to", req.paramsid)
   Accounts.updateById(req.params.id, req.body).then(updated => {
     res.json(updated)
   }).catch(err => {
+    console.log(err);
     res.status(500).json({message: "Internal Server Error."
   })
   })
